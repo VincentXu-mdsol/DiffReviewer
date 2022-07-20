@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{91E98035-4805-4F55-84AB-AB6E00BBC526}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SharpDiff</RootNamespace>
+    <AssemblyName>SharpDiff</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OMetaSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ometasharp\OMetaSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="OMetaSharp.OMetaCS, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\ometasharp\OMetaSharp.OMetaCS.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BinaryFileException.cs" />
+    <Compile Include="BomMode.cs" />
+    <Compile Include="Differ.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Parsers\GitDiff\Diff.DetermineFileNames.cs" />
+    <Compile Include="Parsers\GitDiff\Headers\IndexHeader.cs" />
+    <Compile Include="Parsers\GitDiff\Headers\SimilarityHeader.cs" />
+    <Compile Include="Parsers\GitDiff\Headers\CopyRenameHeader.cs" />
+    <Compile Include="Parsers\GitDiff\Headers\ModeHeader.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\AdditionLine.cs" />
+    <Compile Include="Parsers\GitDiff\Snippets\AdditionSnippet.cs" />
+    <Compile Include="Parsers\GitDiff\Chunks\BinaryFiles.cs" />
+    <Compile Include="Parsers\GitDiff\Chunks\ChangeRange.cs" />
+    <Compile Include="Parsers\GitDiff\Chunks\Chunk.cs" />
+    <Compile Include="Parsers\GitDiff\Chunks\ChunksHeader.cs" />
+    <Compile Include="Parsers\GitDiff\Chunks\ChunkRange.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\ContextLine.cs" />
+    <Compile Include="Parsers\GitDiff\Snippets\ContextSnippet.cs" />
+    <Compile Include="Parsers\GitDiff\Diff.cs" />
+    <Compile Include="Core\FileAccessor.cs" />
+    <Compile Include="Parsers\GitDiff\Files\File.cs" />
+    <Compile Include="Core\IFileAccessor.cs" />
+    <Compile Include="Parsers\GitDiff\Headers\IHeader.cs" />
+    <Compile Include="Parsers\GitDiff\Files\IFile.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\ILine.cs" />
+    <Compile Include="Parsers\GitDiff\Snippets\ISnippet.cs" />
+    <Compile Include="Parsers\GitDiff\Snippets\ModificationSnippet.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\ModificationLine.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\NoNewLineAtEOFLine.cs" />
+    <Compile Include="Parsers\GitDiff\Files\NullFile.cs" />
+    <Compile Include="Parsers\GitNumstat\FileStats.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\LineSpan.cs" />
+    <Compile Include="Parsers\GitDiff\Snippets\SubtractionSnippet.cs" />
+    <Compile Include="Parsers\GitDiff\GitDiffParser.cs" />
+    <Compile Include="Parsers\GitDiff\DiffHeader.cs" />
+    <Compile Include="InvalidDiffFormatException.cs" />
+    <Compile Include="Parsers\GitNumstat\GitNumstatParser.cs" />
+    <Compile Include="Patch.cs" />
+    <Compile Include="PatchMaker.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Parsers\GitDiff\Lines\SubtractionLine.cs" />
+    <Compile Include="Utils\DiffMatchPatch.cs" />
+    <Compile Include="Utils\MathertelDiff.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="Parsers\GitNumstat\GitNumstatParser.ometacs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Parsers\GitDiff\GitDiffParser.ometacs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

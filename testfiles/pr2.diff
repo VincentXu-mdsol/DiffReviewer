@@ -1,0 +1,528 @@
+diff --git a/db/Medidata.Database/StoredProcedures/spGetInstanceNameByBalanceVisitIdentifier.sql b/db/Medidata.Database/StoredProcedures/spGetInstanceNameByBalanceVisitIdentifier.sql
+new file mode 100644
+index 00000000000..e928558878d
+--- /dev/null
++++ b/db/Medidata.Database/StoredProcedures/spGetInstanceNameByBalanceVisitIdentifier.sql
+@@ -0,0 +1,24 @@
++SET ANSI_NULLS ON
++GO
++
++SET QUOTED_IDENTIFIER ON
++GO
++
++IF OBJECT_ID('dbo.spGetInstanceNameByBalanceVisitIdentifier') IS NULL
++    EXEC ('CREATE PROCEDURE dbo.spGetInstanceNameByBalanceVisitIdentifier AS RETURN')
++GO
++
++ALTER PROCEDURE [dbo].[spGetInstanceNameByBalanceVisitIdentifier] (@SubjectID INT, @BalanceVisitIdentifier UNIQUEIDENTIFIER, @Locale VARCHAR(3)) 
++AS
++BEGIN
++    SET NOCOUNT ON
++
++	SELECT dbo.fnFormatInstanceName(i.InstanceName, lds.String, i.InstanceRepeatNumber, s.SubjectDate, i.InstanceDate)
++	FROM   dbo.Instances i
++           JOIN dbo.Subjects s ON s.SubjectID = i.SubjectID
++		   JOIN dbo.Folders f ON f.FolderID = i.FolderID
++		   JOIN dbo.LocalizedDataStrings lds ON lds.StringID = f.FolderName
++	WHERE  i.SubjectID = @SubjectID
++	       AND i.BalanceVisitIdentifier = @BalanceVisitIdentifier
++		   AND lds.Locale = @Locale
++END
+diff --git a/rave/Medidata.Core.Objects.Test/DispensationAccountabilityService/RaveRepositoryTest.cs b/rave/Medidata.Core.Objects.Test/DispensationAccountabilityService/RaveRepositoryTest.cs
+index 47ed8d2371d..d149f5391f0 100644
+--- a/rave/Medidata.Core.Objects.Test/DispensationAccountabilityService/RaveRepositoryTest.cs
++++ b/rave/Medidata.Core.Objects.Test/DispensationAccountabilityService/RaveRepositoryTest.cs
+@@ -25,9 +25,10 @@ public void GetPDALForm_EmptySubjectUuid_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+ 
+             try
+@@ -49,9 +50,10 @@ public void GetPDALForm_NullInteraction_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             try
+             {
+@@ -72,9 +74,10 @@ public void GetPDALForm_SubjectReturnsNull_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             try
+             {
+@@ -98,9 +101,10 @@ public void GetPDALForm_FindByFormOIDReturnsNull_DataPageReturnsNull()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -125,9 +129,10 @@ public void GetPDALForm_DataPointFindByFieldOIDSubjectDispensationUnitOIDReturns
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -179,9 +184,10 @@ public void GetPDALForm_DataPointFindByFieldOIDSubjectDispensationOIDReturnsNull
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -234,8 +240,9 @@ public void GetPDALForm_HasValidData_MapsDataFromRecord_With_String_KitCondition
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -321,8 +328,9 @@ public void GetPDALForm_HasValidData_MapsDataFromRecord_With_Integer_KitConditio
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
+-            
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
++
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -409,8 +417,9 @@ public void GetPDALForm_HasValidData_MapsDataFromRecord_With_empty_KitCondition(
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -496,8 +505,9 @@ public void GetPDALForm_HasValidData_MapsDataFromRecord_With_null_KitCondition()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
+-            
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
++
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subject = MockRepository.GenerateMock<ISubject>();
+@@ -584,9 +594,10 @@ public void SavePDALForm_NullRequest_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             try
+             {
+@@ -607,9 +618,10 @@ public void SavePDALForm_NullInteraction_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+             var pdalForm = new PdalForm
+             {
+                 SubjectUuid = new Guid("d34db33f-d34d-b33f-d34d-b33fd34db33f")
+@@ -634,9 +646,10 @@ public void SavePDALForm_EmptySubjectUUID_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var pdalForm = new PdalForm
+             {
+@@ -662,9 +675,10 @@ public void SavePDALForm_NullSubject_ThrowsException()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+             var subjectUuid = new Guid("d34db33f-d34d-b33f-d34d-b33fd34db33f");
+@@ -701,9 +715,10 @@ public void SavePDALForm_FormDoesntExistMatrixFetchByOIDReturnsNull_ThrowsExcept
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var subject = MockRepository.GenerateMock<ISubject>();
+             var interaction = MockRepository.GenerateMock<IInteraction>();
+@@ -749,9 +764,10 @@ public void SavePDALForm_FormDoesntExist_AddsMatrix()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var subject = MockRepository.GenerateMock<ISubject>();
+ 
+@@ -814,6 +830,7 @@ public void SavePDALForm_FormDoesntExist_AddsMatrix()
+             dataPoints.Stub(x => x.FindByFieldOID(eDAConstants.KTCON_FIELD_OID)).Return(kitConDatapoint);
+             record.Stub(x => x.DataPoints).Return(dataPoints);
+             dataPage.Stub(x => x.Records).Return(records);
++            dataPage.Stub(x => x.Subject).Return(subject);
+ 
+             record.Stub(x => x.DataPage).Return(dataPage);
+             records.Stub(x => x.Count).Return(1);
+@@ -823,6 +840,10 @@ public void SavePDALForm_FormDoesntExist_AddsMatrix()
+             subject.Stub(x => x.GetRecordsByForm(addedForm, true)).Return(records);
+             subject.Expect(x => x.MergeMatrix(matrix));
+ 
++            var balanceVisitIdentifier = new Guid("6322FAA5-D7F8-4A44-9A9D-E8B520235676").ToString();
++            interaction.Stub(x => x.DefaultLocale).Return("eng");
++            instanceService.Stub(x => x.GetInstanceNameByBalanceVisitIdentifier(subject.ID, balanceVisitIdentifier, interaction)).Return("Folder");
++
+             ra.SavePDALForm(pdalForm);
+ 
+             subject.VerifyAllExpectations();
+@@ -870,9 +891,10 @@ public void SavePDALForm_ValidInputs_FormAddsNewRecord()
+             var formService = MockRepository.GenerateMock<IFormService>();
+             var matrixAdapter = MockRepository.GenerateMock<IMatrixService>();
+             var dataPointService = MockRepository.GenerateMock<IDataPointService>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+-            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService);
++            var ra = new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService);
+ 
+             var subject = MockRepository.GenerateMock<ISubject>();
+ 
+@@ -938,6 +960,7 @@ public void SavePDALForm_ValidInputs_FormAddsNewRecord()
+             dataPoints.Stub(x => x.GetAsEnumerable()).Return(dataPointsList);
+             record.Stub(x => x.DataPoints).Return(dataPoints);
+             dataPage.Stub(x => x.Records).Return(records);
++            dataPage.Stub(x => x.Subject).Return(subject);
+ 
+             record.Stub(x => x.DataPage).Return(dataPage);
+             records.Stub(x => x.Count).Return(1);
+@@ -947,6 +970,10 @@ public void SavePDALForm_ValidInputs_FormAddsNewRecord()
+             subject.Stub(x => x.GetRecordsByForm(addedForm, true)).Return(records);
+             dataPage.Expect(x => x.AddLogRecords(true)).Return(recordsList);
+ 
++            var balanceVisitIdentifier = new Guid("6322FAA5-D7F8-4A44-9A9D-E8B520235676").ToString();
++            interaction.Stub(x => x.DefaultLocale).Return("eng");
++            instanceService.Stub(x => x.GetInstanceNameByBalanceVisitIdentifier(subject.ID, balanceVisitIdentifier, interaction)).Return("Folder");
++
+             ra.SavePDALForm(pdalForm);
+ 
+             dataPage.VerifyAllExpectations();
+@@ -974,6 +1001,7 @@ public void SavePDALForm_ValidInputs_FormUpdatesExistingRecord()
+             var dataPoints = MockRepository.GenerateMock<IDataPoints>();
+             var matrix = MockRepository.GenerateMock<IMatrix>();
+             var user = MockRepository.GenerateMock<IInternalUser>();
++            var instanceService = MockRepository.GenerateMock<IInstanceService>();
+             var studyId = 1;
+ 
+             var kitConDataPoint = GenerateDataPointWithDictionaryVariable(eDAConstants.KitConditionMappings, false);
+@@ -990,6 +1018,7 @@ public void SavePDALForm_ValidInputs_FormUpdatesExistingRecord()
+ 
+             //Stubs
+             dataPage.Stub(x => x.Records).Return(records);
++            dataPage.Stub(x => x.Subject).Return(subject);
+ 
+             record.Stub(x => x.DataPage).Return(dataPage);
+             record.Stub(x => x.DataPoints).Return(dataPoints);
+@@ -1053,7 +1082,11 @@ public void SavePDALForm_ValidInputs_FormUpdatesExistingRecord()
+             //verify AddLogRecord wasn't called because the log record was found that matched Ids.
+             dataPage.Expect(x => x.AddLogRecords(true)).Repeat.Never();
+ 
+-            new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService).SavePDALForm(pdalForm);
++            var balanceVisitIdentifier = new Guid("6322FAA5-D7F8-4A44-9A9D-E8B520235676").ToString();
++            interaction.Stub(x => x.DefaultLocale).Return("eng");
++            instanceService.Stub(x => x.GetInstanceNameByBalanceVisitIdentifier(subject.ID, balanceVisitIdentifier, interaction)).Return("Folder");
++
++            new RaveRepository(logManager, subjectService, formService, matrixAdapter, dataPointService, instanceService).SavePDALForm(pdalForm);
+ 
+             dataPage.VerifyAllExpectations();
+ 
+diff --git a/rave/Medidata.Core.Objects.Test/Repositories/InstanceRepositoryTests.cs b/rave/Medidata.Core.Objects.Test/Repositories/InstanceRepositoryTests.cs
+index 0eca7fa99e1..f6a02920f99 100644
+--- a/rave/Medidata.Core.Objects.Test/Repositories/InstanceRepositoryTests.cs
++++ b/rave/Medidata.Core.Objects.Test/Repositories/InstanceRepositoryTests.cs
+@@ -107,5 +107,27 @@ public void GetInstancesForSubjectExcludingDescendants_ShouldCallAdapterGetList(
+             Assert.AreSame(expected, result);
+         }
+ 
++        [TestMethod]
++        public void GetInstanceNameByBalanceVisitIdentifier_ShouldCallAdapterGetItem()
++        {
++            //Arrange
++            var target = new InstanceRepository(_factory);
++            var subjectId = _fixture.Create<int>();
++            var balanceVisitIdentifier = System.Guid.NewGuid();
++            var expected = "Form1";
++            var locale = "eng";
++
++            _adapter.Stub(a => a.GetItem<string>("spGetInstanceNameByBalanceVisitIdentifier")).Return(expected);
++
++            //Act
++            var result = target.GetInstanceNameByBalanceVisitIdentifier(subjectId, balanceVisitIdentifier, locale);
++
++            //Assert
++            _factory.AssertWasCalled(f => f.GetDataAdapter(false));
++            _adapter.VerifyAdapterGetItemWasCalled<string>("spGetInstanceNameByBalanceVisitIdentifier",
++                (nameof(subjectId), subjectId), (nameof(balanceVisitIdentifier), balanceVisitIdentifier), (nameof(locale), locale));
++
++            Assert.AreSame(expected, result);
++        }
+     }
+ }
+diff --git a/rave/Medidata.Core.Objects.Test/Services/InstanceServiceTest.cs b/rave/Medidata.Core.Objects.Test/Services/InstanceServiceTest.cs
+index fa61dc367d8..ff1d567d82b 100644
+--- a/rave/Medidata.Core.Objects.Test/Services/InstanceServiceTest.cs
++++ b/rave/Medidata.Core.Objects.Test/Services/InstanceServiceTest.cs
+@@ -195,5 +195,62 @@ public void FetchSubjectChildInstances_CalledWithNullInteraction_ThrowsException
+                 _instanceService.FetchSubjectChildInstances( Arg<int>.Is.Anything, null,
+                     Arg<bool>.Is.Anything));
+         }
++
++        [TestMethod]
++        public void GetInstanceNameByBalanceVisitIdentifier_NegativeSubjectId_ThrowsException()
++        {
++            //arrange
++            int subjectId = -10;
++            var balanceVisitIdentifier = Guid.NewGuid().ToString();
++            var interactionMock = _container.GetMock<IInteraction>();
++
++            //assert
++            Assert.ThrowsException<ArgumentOutOfRangeException>(
++                () => _instanceService.GetInstanceNameByBalanceVisitIdentifier(subjectId, balanceVisitIdentifier, interactionMock),
++                $"Subject ID {subjectId} is not valid.");
++        }
++
++        [TestMethod]
++        public void GetInstanceNameByBalanceVisitIdentifier_CalledWithNullInteraction_ThrowsException()
++        {
++            Assert.ThrowsException<ArgumentNullException>(() =>
++                _instanceService.GetInstanceNameByBalanceVisitIdentifier(Arg<int>.Is.Anything, Arg<Guid>.Is.Anything.ToString(),
++                    null));
++        }
++
++        [TestMethod]
++        public void GetInstanceNameByBalanceVisitIdentifier_InvalidBalanceVisitIdentifierGuid_ThrowsException()
++        {
++            //arrange
++            var subjectId = 1;
++            var balanceVisitIdentifier = "FFG10-33FEOS";
++            var interactionMock = _container.GetMock<IInteraction>();
++
++            //assert
++            Assert.ThrowsException<ArgumentException>(
++                () => _instanceService.GetInstanceNameByBalanceVisitIdentifier(subjectId, balanceVisitIdentifier, interactionMock),
++                $"Balance Visit Identifier {balanceVisitIdentifier} is not valid.");
++        }
++
++        [TestMethod]
++        public void GetInstanceNameByBalanceVisitIdentifier_IsValid()
++        {
++            //arrange
++            var subjectId = 1;
++            var balanceVisitIdentifierGuid = Guid.NewGuid();
++            var balanceVisitIdentifier = balanceVisitIdentifierGuid.ToString();
++            var interactionMock = _container.GetMock<IInteraction>();
++            interactionMock.Stub(x => x.DefaultLocale).Return("eng");
++            var expectedResult = "Folder";
++
++            _instanceRepositoryMock.Stub(x => x.GetInstanceNameByBalanceVisitIdentifier(subjectId, balanceVisitIdentifierGuid, interactionMock.DefaultLocale)).Return(expectedResult);
++
++            //act
++            var actualResult =
++                _instanceService.GetInstanceNameByBalanceVisitIdentifier(subjectId, balanceVisitIdentifier, interactionMock);
++
++            //assert
++            Assert.AreEqual(expectedResult, actualResult);
++        }
+     }
+ }
+diff --git a/rave/Medidata.Core/Medidata.Core.Objects/Balance/eDA/RaveRepository.cs b/rave/Medidata.Core/Medidata.Core.Objects/Balance/eDA/RaveRepository.cs
+index 0184c82fdad..9ec6db87648 100644
+--- a/rave/Medidata.Core/Medidata.Core.Objects/Balance/eDA/RaveRepository.cs
++++ b/rave/Medidata.Core/Medidata.Core.Objects/Balance/eDA/RaveRepository.cs
+@@ -22,6 +22,7 @@ public class RaveRepository : IRaveRepository
+         private readonly IFormService _formService;
+         private readonly IMatrixService _matrixService;
+         private readonly IDataPointService _dataPointService;
++        private readonly IInstanceService _instanceService;
+ 
+         static RaveRepository()
+         {
+@@ -32,13 +33,15 @@ static RaveRepository()
+             ISubjectService subjectService,
+             IFormService formService,
+             IMatrixService matrixService,
+-            IDataPointService dataPointService)
++            IDataPointService dataPointService,
++            IInstanceService instanceService)
+         {
+             _logger = logger;
+             _subjectService = subjectService;
+             _formService = formService;
+             _matrixService = matrixService;
+             _dataPointService = dataPointService;
++            _instanceService = instanceService;
+             _logger.CurrentLoggerType = typeof(RaveRepository);
+         }
+ 
+@@ -136,9 +139,14 @@ public void SavePDALForm(IPdalForm pdalForm)
+                 record.Active = true;
+                 record.RequestSave();
+             
+-
+                 logLine.LastModifiedBy = lastUpdateUser;
+ 
++                var subjectId = record.DataPage.Subject.ID;
++                var formName = _instanceService.GetInstanceNameByBalanceVisitIdentifier(subjectId, logLine.VisitIdentifier, pdalForm.Interaction);
++
++                if (!string.IsNullOrEmpty(formName))
++                    logLine.Folder = formName;
++
+                 Mapper.Map(logLine, record, opts => opts.Items["dataPointService"] = _dataPointService);
+ 
+                 if (logLine.Locked)
+diff --git a/rave/Medidata.Core/Medidata.Core.Objects/Interfaces/Repositories/IInstanceRepository.cs b/rave/Medidata.Core/Medidata.Core.Objects/Interfaces/Repositories/IInstanceRepository.cs
+index 0d3f413cc5e..7271612705e 100644
+--- a/rave/Medidata.Core/Medidata.Core.Objects/Interfaces/Repositories/IInstanceRepository.cs
++++ b/rave/Medidata.Core/Medidata.Core.Objects/Interfaces/Repositories/IInstanceRepository.cs
+@@ -1,4 +1,5 @@
+ ﻿using Medidata.Core.Objects.DataTransferObjects;
++using System;
+ using System.Collections.Generic;
+ 
+ namespace Medidata.Core.Objects.Interfaces.Repositories
+@@ -9,6 +10,6 @@ internal interface IInstanceRepository
+         IEnumerable<InstanceDataDTO> GetInstancesForParentInstance(int parentInstanceId, int userId);
+         IEnumerable<InstanceDataDTO> GetInstancesForSubjectIncludingDescendants(int subjectId, int userId);
+         IEnumerable<InstanceDataDTO> GetInstancesForSubjectExcludingDescendants(int subjectId, int userId);
+-
++        string GetInstanceNameByBalanceVisitIdentifier(int subjectId, Guid balanceVisitIdentifier, string locale);
+     }
+ }
+diff --git a/rave/Medidata.Core/Medidata.Core.Objects/Repositories/InstanceRepository.cs b/rave/Medidata.Core/Medidata.Core.Objects/Repositories/InstanceRepository.cs
+index 532b14cdd53..5ada0fe5f7f 100644
+--- a/rave/Medidata.Core/Medidata.Core.Objects/Repositories/InstanceRepository.cs
++++ b/rave/Medidata.Core/Medidata.Core.Objects/Repositories/InstanceRepository.cs
+@@ -2,6 +2,7 @@
+ using Medidata.Core.Objects.DataTransferObjects;
+ using Medidata.Core.Objects.Interfaces.Repositories;
+ using Medidata.Data.Factories;
++using System;
+ using System.Collections.Generic;
+ 
+ namespace Medidata.Core.Objects.Repositories
+@@ -63,5 +64,17 @@ public IEnumerable<InstanceDataDTO> GetInstancesForSubjectExcludingDescendants(
+                 return instances;
+             }
+         }
++
++        public string GetInstanceNameByBalanceVisitIdentifier(int subjectId, Guid balanceVisitIdentifier, string locale)
++        {
++            using (var adapter = _factory.GetDataAdapter(false))
++            {
++                adapter.AddInputParameter("SubjectID", subjectId);
++                adapter.AddInputParameter("BalanceVisitIdentifier", balanceVisitIdentifier);
++                adapter.AddInputParameter("Locale", locale);
++                var instanceName = adapter.GetItem<string>("spGetInstanceNameByBalanceVisitIdentifier");
++                return instanceName;
++            }
++        }
+     }
+ }
+diff --git a/rave/Medidata.Core/Medidata.Core.Objects/Services/InstanceService.cs b/rave/Medidata.Core/Medidata.Core.Objects/Services/InstanceService.cs
+index b58bfa5c6dd..503ca17a7e5 100644
+--- a/rave/Medidata.Core/Medidata.Core.Objects/Services/InstanceService.cs
++++ b/rave/Medidata.Core/Medidata.Core.Objects/Services/InstanceService.cs
+@@ -74,5 +74,17 @@ public IInstances FetchSubjectChildInstances( int subjectId, IInteraction intera
+             var instances = _instanceFetcher.FindOrCreateCollection(FetchData, interaction, true);
+             return instances;
+         }
++
++        public string GetInstanceNameByBalanceVisitIdentifier(int subjectId, string visitIdentifier, IInteraction interaction)
++        {
++            if (interaction == null)
++                throw new ArgumentNullException(nameof(interaction));
++            if (subjectId < 1)
++                throw new ArgumentOutOfRangeException(nameof(subjectId), $"Subject ID {subjectId} is not valid.");
++            if (!Guid.TryParse(visitIdentifier, out var guidVisitIdentifier))
++                throw new ArgumentException(nameof(visitIdentifier), $"Balance Visit Identifier {visitIdentifier} is not valid.");
++
++            return _repository.GetInstanceNameByBalanceVisitIdentifier(subjectId, guidVisitIdentifier, interaction.DefaultLocale);
++        }
+     }
+ }
+diff --git a/rave/Medidata.Interfaces/Medidata.Interfaces/Adapters/IInstanceService.cs b/rave/Medidata.Interfaces/Medidata.Interfaces/Adapters/IInstanceService.cs
+index 3c6c72de1ef..f3f93f43140 100644
+--- a/rave/Medidata.Interfaces/Medidata.Interfaces/Adapters/IInstanceService.cs
++++ b/rave/Medidata.Interfaces/Medidata.Interfaces/Adapters/IInstanceService.cs
+@@ -11,5 +11,6 @@ public interface IInstanceService
+         IInstances FetchInstanceChildInstances(int parentInstanceIds, IInteraction interaction);
+         IInstances FetchSubjectChildInstances(int subjectId, IInteraction interaction,
+             bool includeDescendants);
++        string GetInstanceNameByBalanceVisitIdentifier(int subjectId, string visitIdentifier, IInteraction interaction);
+     }
+ }

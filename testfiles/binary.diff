@@ -1,0 +1,3 @@
+diff --git a/db/Medidata.Database/StoredProcedures/spProtocolDeviationInsert.sql b/db/Medidata.Database/StoredProcedures/spProtocolDeviationInsert.sql
+index 0e4541b6571..78c2274d055 100644
+Binary files a/db/Medidata.Database/StoredProcedures/spProtocolDeviationInsert.sql and b/db/Medidata.Database/StoredProcedures/spProtocolDeviationInsert.sql differ

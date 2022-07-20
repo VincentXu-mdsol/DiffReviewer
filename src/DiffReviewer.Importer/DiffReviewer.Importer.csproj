@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="SaveRepository.cs" />
+    <Compile Remove="SaveService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DiffReviewer.Interfaces\DiffReviewer.Interfaces.csproj" />
+    <ProjectReference Include="..\SharpDiff\SharpDiff.csproj" />
+  </ItemGroup>
+
+</Project>

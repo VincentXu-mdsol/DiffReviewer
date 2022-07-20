@@ -1,0 +1,46 @@
+diff --git a/src/Core/Interfaces/src/Refs/CheckRef.cs b/src/Core/Interfaces/src/Refs/CheckRef.cs
+new file mode 100644
+index 00000000000..d88829927c9
+--- /dev/null
++++ b/src/Core/Interfaces/src/Refs/CheckRef.cs
+@@ -0,0 +1,17 @@
++namespace Medidata.Interfaces.Refs
++{
++    /// <summary>
++    /// Check Ref.
++    /// </summary>
++    [CustomerAPI(SupportedApiVersion = SupportedVersion.V2)]
++    public struct CheckRef
++    {
++        public int Id { get; }
++
++        /// <summary>
++        /// Initializes a new instance of the <see cref="CheckRef"/> struct.
++        /// Constructor.
++        /// </summary>
++        public CheckRef(int id) => Id = id;
++    }
++}
+diff --git a/src/Programmability/CustomFunctions/src/Roslyn/RoslynHelper.cs b/src/Programmability/CustomFunctions/src/Roslyn/RoslynHelper.cs
+index 218aaea71fe..90549d9a528 100644
+--- a/src/Programmability/CustomFunctions/src/Roslyn/RoslynHelper.cs
++++ b/src/Programmability/CustomFunctions/src/Roslyn/RoslynHelper.cs
+@@ -87,6 +87,7 @@ private string WrapSourceCodeCSharp(string sourceCode)
+             sb.Append("using Medidata.Interfaces.Clinical;");
+             sb.Append("using Medidata.Cloud.Programmability.CustomFunctions.Customizations;");
+-            sb.Append("using Medidata.RaveWebServices.Outbound;");
++            sb.Append("using Medidata.Interfaces.Refs;");
+             sb.Append("class CustomClass:Medidata.Core.Objects.CustomFunctionBase");
+             sb.Append('{');
+             sb.Append("public override object Eval(object ThisObject)");
+@@ -111,6 +112,10 @@ private string WrapSourceCodeVisualBasic(string sourceCode)
+             sb.Append("Imports System.Collections\r\n");
+             sb.Append("Imports System.Globalization\r\n");
+             sb.Append("Imports System.Text.RegularExpressions\r\n");
++            sb.Append("Imports Medidata.Interfaces\r\n");
++            sb.Append("Imports Medidata.Interfaces.Clinical\r\n");
++            sb.Append("Imports Medidata.Cloud.Programmability.CustomFunctions.Customizations\r\n");
++            sb.Append("Imports Medidata.Interfaces.Refs\r\n");
+             sb.Append("Public Class CustomClass: Inherits CustomFunctionBase\r\n");
+             sb.Append("Public Overrides Function Eval(ThisObject as Object) as Object\r\n");
+             sb.Append(sourceCode);
