@@ -6,7 +6,7 @@ namespace DiffReviewer.DTO
 {
     public class HunkApprovalResponseDTO
     {
-        public int HunkId { get; set; }
+        public string HunkHash { get; set; }
 
         public bool IsApproved { get; set; }
 

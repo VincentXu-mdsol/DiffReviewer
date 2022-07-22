@@ -29,6 +29,10 @@ namespace DiffReviewer.WebAPI
         {
             var reviewRepository = new ReviewRepository(this.Configuration);
             services.Add(new ServiceDescriptor(typeof(IReviewService), new ReviewService(reviewRepository)));
+
+            var userRoleRepository = new UserRoleRepository(this.Configuration);
+            services.Add(new ServiceDescriptor(typeof(IUserRoleService), new UserRoleService(userRoleRepository)));
+
             services.AddControllers();
             services.AddSwaggerGen();
         }

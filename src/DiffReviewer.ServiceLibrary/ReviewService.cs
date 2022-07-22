@@ -14,19 +14,19 @@ namespace DiffReviewer.ServiceLibrary
             _reviewRepository = reviewRepository;
         }
 
-        public CheckInResponseDTO CheckInHunk(int hunkId, int userId)
+        public CheckInResponseDTO CheckInHunk(string hunkHash, int userId)
         {
-            return _reviewRepository.CheckInHunk(hunkId, userId);
+            return _reviewRepository.CheckInHunk(hunkHash, userId);
         }
 
-        public CheckOutResponseDTO CheckOutHunk(int hunkId, int userId)
+        public CheckOutResponseDTO CheckOutHunk(string hunkHash, int userId)
         {
-            return _reviewRepository.CheckOutHunk(hunkId, userId);
+            return _reviewRepository.CheckOutHunk(hunkHash, userId);
         }
 
-        public CheckOutStatusResponseDTO GetCheckOutStatus(int hunkId)
+        public CheckOutStatusResponseDTO GetCheckOutStatus(string hunkHash)
         {
-            return _reviewRepository.GetCheckOutStatus(hunkId);
+            return _reviewRepository.GetCheckOutStatus(hunkHash);
         }
 
         public HunkReviewsDTO GetAllHunks(int pullRequestNumber)
@@ -54,19 +54,24 @@ namespace DiffReviewer.ServiceLibrary
             return _reviewRepository.GetHunksToReview(pullRequestNumber, false, false, false);
         }
 
-        public HunkReviewResponseDTO SetHunkReviewStatus(int hunkId, bool isAccepted, int userId, string comments)
+        public HunkReviewResponseDTO SetHunkReviewStatus(string hunkHash, bool isAccepted, int userId, string comments)
         {
-            return _reviewRepository.SetHunkReviewStatus(hunkId, isAccepted, userId, comments);
+            return _reviewRepository.SetHunkReviewStatus(hunkHash, isAccepted, userId, comments);
         }
 
-        public HunkApprovalResponseDTO SetHunkApprovalStatus(int hunkId, bool isApproved, int userId, string comments)
+        public HunkApprovalResponseDTO SetHunkApprovalStatus(string hunkHash, bool isApproved, int userId, string comments)
         {
-            return _reviewRepository.SetHunkApprovalStatus(hunkId, isApproved, userId, comments);
+            return _reviewRepository.SetHunkApprovalStatus(hunkHash, isApproved, userId, comments);
         }
 
         public List<int> GetPullRequestNumbers()
         {
             return _reviewRepository.GetPullRequestNumbers();
+        }
+
+        public ReviewStatsDTO GetReviewStats(int pullRequestNumber)
+        {
+            return _reviewRepository.GetReviewStats(pullRequestNumber);
         }
     }
 }

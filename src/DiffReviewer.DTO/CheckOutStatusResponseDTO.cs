@@ -6,7 +6,7 @@ namespace DiffReviewer.DTO
 {
     public class CheckOutStatusResponseDTO
     {
-        public int HunkId { get; set; }
+        public string HunkHash { get; set; }
 
         public bool IsCheckedOut { get; set; }
 

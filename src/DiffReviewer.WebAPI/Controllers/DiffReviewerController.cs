@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace DiffReviewer.WebAPI.Controllers
 {
     [ApiController]
-    //[Route("[controller]")]
     [Route("[controller]/[action]")]
     public class DiffReviewerController : ControllerBase
     {
@@ -23,7 +22,7 @@ namespace DiffReviewer.WebAPI.Controllers
             _reviewService = reviewService;
         }
 
-        [HttpGet("{pullrequestnumber}")]
+        [HttpGet("{pullRequestNumber}")]
         public JsonResult GetAllHunks(int pullRequestNumber)
         {
             var retval = _reviewService.GetAllHunks(pullRequestNumber);
@@ -58,38 +57,38 @@ namespace DiffReviewer.WebAPI.Controllers
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
 
-        [HttpGet("{hunkId}")]
-        public JsonResult GetCheckOutStatus(int hunkId)
+        [HttpGet("{hunkHash}")]
+        public JsonResult GetCheckOutStatus(string hunkHash)
         {
-            var retval = _reviewService.GetCheckOutStatus(hunkId);
+            var retval = _reviewService.GetCheckOutStatus(hunkHash);
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
 
-        [HttpPost("{hunkId}/{userId}")]
-        public JsonResult CheckOutHunk(int hunkId, int userId)
+        [HttpPost("{hunkHash}/{userId}")]
+        public JsonResult CheckOutHunk(string hunkHash, int userId)
         {
-            var retval = _reviewService.CheckOutHunk(hunkId,userId);
+            var retval = _reviewService.CheckOutHunk(hunkHash, userId);
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
 
-        [HttpPost("{hunkId}/{userId}")]
-        public JsonResult CheckInHunk(int hunkId, int userId)
+        [HttpPost("{hunkHash}/{userId}")]
+        public JsonResult CheckInHunk(string hunkHash, int userId)
         {
-            var retval = _reviewService.CheckInHunk(hunkId, userId);
+            var retval = _reviewService.CheckInHunk(hunkHash, userId);
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
 
-        [HttpPost("{hunkId}/{userId}/{IsAccepted}/{comments}")]
-        public JsonResult SetHunkReviewStatus(int hunkId, int userId, bool isAccepted, string comments)
+        [HttpPost("{hunkHash}/{userId}/{IsAccepted}/{comments}")]
+        public JsonResult SetHunkReviewStatus(string hunkHash, int userId, bool isAccepted, string comments)
         {
-            var retval = _reviewService.SetHunkReviewStatus(hunkId, isAccepted, userId, comments);
+            var retval = _reviewService.SetHunkReviewStatus(hunkHash, isAccepted, userId, comments);
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
 
-        [HttpPost("{hunkId}/{userId}/{IsApproved}/{comments}")]
-        public JsonResult SetHunkApprovalStatus(int hunkId, int userId, bool isApproved, string comments)
+        [HttpPost("{hunkHash}/{userId}/{IsApproved}/{comments}")]
+        public JsonResult SetHunkApprovalStatus(string hunkHash, int userId, bool isApproved, string comments)
         {
-            var retval = _reviewService.SetHunkApprovalStatus(hunkId, isApproved, userId, comments);
+            var retval = _reviewService.SetHunkApprovalStatus(hunkHash, isApproved, userId, comments);
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
 
@@ -97,6 +96,13 @@ namespace DiffReviewer.WebAPI.Controllers
         public JsonResult GetPullRequestNumbers()
         {
             var retval = _reviewService.GetPullRequestNumbers();
+            return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
+        }
+
+        [HttpGet("{pullRequestNumber}")]
+        public JsonResult GetReviewStats(int pullRequestNumber)
+        {
+            var retval = _reviewService.GetReviewStats(pullRequestNumber);
             return new JsonResult(retval, new JsonSerializerOptions { PropertyNamingPolicy = null });
         }
     }

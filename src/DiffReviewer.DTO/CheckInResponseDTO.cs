@@ -6,7 +6,7 @@ namespace DiffReviewer.DTO
 {
     public class CheckInResponseDTO
     {
-        public int HunkId { get; set; }
+        public string HunkHash { get; set; }
 
         public bool IsCheckedIn { get; set; }
 

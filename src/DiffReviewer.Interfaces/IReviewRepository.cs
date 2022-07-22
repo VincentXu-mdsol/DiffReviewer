@@ -7,18 +7,20 @@ namespace DiffReviewer.Interfaces
 {
     public interface IReviewRepository
     {
-        public CheckInResponseDTO CheckInHunk(int hunkId, int userId);
+        public CheckInResponseDTO CheckInHunk(string hunkHash, int userId);
 
-        public CheckOutResponseDTO CheckOutHunk(int hunkId, int userId);
+        public CheckOutResponseDTO CheckOutHunk(string hunkHash, int userId);
 
-        public CheckOutStatusResponseDTO GetCheckOutStatus(int hunkId);
+        public CheckOutStatusResponseDTO GetCheckOutStatus(string hunkHash);
 
         public HunkReviewsDTO GetHunksToReview(int pullRequestNumber, bool showAll = true, bool showFullyReviewed = false, bool showFullyApproved = false);
 
-        public HunkReviewResponseDTO SetHunkReviewStatus(int hunkId, bool isAccepted, int userId, string comments);
+        public HunkReviewResponseDTO SetHunkReviewStatus(string hunkHash, bool isAccepted, int userId, string comments);
 
-        public HunkApprovalResponseDTO SetHunkApprovalStatus(int hunkId, bool isApproved, int userId, string comments);
+        public HunkApprovalResponseDTO SetHunkApprovalStatus(string hunkHash, bool isApproved, int userId, string comments);
 
         public List<int> GetPullRequestNumbers();
+
+        public ReviewStatsDTO GetReviewStats(int pullRequestNumber);
     }
 }

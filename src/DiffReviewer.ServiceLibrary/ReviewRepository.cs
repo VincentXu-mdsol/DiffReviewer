@@ -18,7 +18,7 @@ namespace DiffReviewer.ServiceLibrary
         {
             sqlConnString = configuration.GetConnectionString("database");
         }
-        public CheckInResponseDTO CheckInHunk(int hunkId, int userId)
+        public CheckInResponseDTO CheckInHunk(string hunkHash, int userId)
         {
             var retval = new CheckInResponseDTO();
             using (var conn = new SqlConnection(sqlConnString))
@@ -27,7 +27,7 @@ namespace DiffReviewer.ServiceLibrary
                 using (var cmd = new SqlCommand("spCheckInHunk", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@HunkId", SqlDbType.Int).Value = hunkId;
+                    cmd.Parameters.AddWithValue("@HunkHash", SqlDbType.NVarChar).Value = hunkHash;
                     cmd.Parameters.AddWithValue("@UserId", SqlDbType.Int).Value = userId;
 
                     using (SqlDataAdapter da = new SqlDataAdapter())
@@ -40,7 +40,7 @@ namespace DiffReviewer.ServiceLibrary
                         var dt = ds.Tables["results"];
                         var row = dt.Rows[0];
 
-                        retval.HunkId = Convert.ToInt32(row["HunkId"]);
+                        retval.HunkHash = row["HunkHash"].ToString();
                         retval.IsCheckedIn = Convert.ToBoolean(row["IsCheckedIN"]);
                         retval.UserId = Convert.ToInt32(row["UserId"]);
                         retval.Status = row["Status"].ToString();
@@ -51,7 +51,7 @@ namespace DiffReviewer.ServiceLibrary
             return retval;
         }
 
-        public CheckOutResponseDTO CheckOutHunk(int hunkId, int userId)
+        public CheckOutResponseDTO CheckOutHunk(string hunkHash, int userId)
         {
             var retval = new CheckOutResponseDTO();
             using (var conn = new SqlConnection(sqlConnString))
@@ -60,7 +60,7 @@ namespace DiffReviewer.ServiceLibrary
                 using (var cmd = new SqlCommand("spCheckOutHunk", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@HunkId", SqlDbType.Int).Value = hunkId;
+                    cmd.Parameters.AddWithValue("@HunkHash", SqlDbType.NVarChar).Value = hunkHash;
                     cmd.Parameters.AddWithValue("@UserId", SqlDbType.Int).Value = userId;
 
                     using (SqlDataAdapter da = new SqlDataAdapter())
@@ -73,7 +73,7 @@ namespace DiffReviewer.ServiceLibrary
                         var dt = ds.Tables["results"];
                         var row = dt.Rows[0];
 
-                        retval.HunkId = Convert.ToInt32(row["HunkId"]);
+                        retval.HunkHash = row["HunkHash"].ToString();
                         retval.IsCheckedOutByOtherUser = Convert.ToBoolean(row["IsCheckedOutByOtherUser"]);
                         retval.UserId = Convert.ToInt32(row["CheckOutUserId"]);
                         retval.Status = row["Status"].ToString();             
@@ -84,7 +84,7 @@ namespace DiffReviewer.ServiceLibrary
             return retval;
         }
 
-        public CheckOutStatusResponseDTO GetCheckOutStatus(int hunkId)
+        public CheckOutStatusResponseDTO GetCheckOutStatus(string hunkHash)
         {
             var retval = new CheckOutStatusResponseDTO();
             using (var conn = new SqlConnection(sqlConnString))
@@ -93,7 +93,7 @@ namespace DiffReviewer.ServiceLibrary
                 using (var cmd = new SqlCommand("spGetHunkCheckOutStatus", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@HunkId", SqlDbType.Int).Value = hunkId;
+                    cmd.Parameters.AddWithValue("@HunkHash", SqlDbType.NVarChar).Value = hunkHash;
 
                     using (SqlDataAdapter da = new SqlDataAdapter())
                     {
@@ -105,7 +105,7 @@ namespace DiffReviewer.ServiceLibrary
                         var dt = ds.Tables["results"];
                         var row = dt.Rows[0];
 
-                        retval.HunkId = Convert.ToInt32(row["HunkId"]);
+                        retval.HunkHash = row["HunkHash"].ToString();
                         retval.CheckOutUserId = Convert.ToInt32(row["CheckOutUserId"]);
                         retval.CheckOutDate = !row.IsNull("CheckOutUserId") ? Convert.ToDateTime(row["CheckOutUserId"]) : (DateTime?)null;
                     }
@@ -168,7 +168,7 @@ namespace DiffReviewer.ServiceLibrary
             return retval;
         }
     
-        public HunkReviewResponseDTO SetHunkReviewStatus(int hunkId, bool isAccepted, int userId, string comments)
+        public HunkReviewResponseDTO SetHunkReviewStatus(string hunkHash, bool isAccepted, int userId, string comments)
         {
             var retval = new HunkReviewResponseDTO();
             using (var conn = new SqlConnection(sqlConnString))
@@ -177,7 +177,7 @@ namespace DiffReviewer.ServiceLibrary
                 using (var cmd = new SqlCommand("spReviewHunk", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@HunkId", SqlDbType.Int).Value = hunkId;
+                    cmd.Parameters.AddWithValue("@HunkHash", SqlDbType.NVarChar).Value = hunkHash;
                     cmd.Parameters.AddWithValue("@IsAccepted", SqlDbType.Bit).Value = isAccepted;
                     cmd.Parameters.AddWithValue("@UserId", SqlDbType.Int).Value = userId;
                     cmd.Parameters.AddWithValue("@Comments", SqlDbType.NVarChar).Value = comments;
@@ -192,7 +192,7 @@ namespace DiffReviewer.ServiceLibrary
                         var dt = ds.Tables["results"];
                         var row = dt.Rows[0];
 
-                        retval.HunkId = Convert.ToInt32(row["HunkId"]);
+                        retval.HunkHash = row["HunkId"].ToString();
                         retval.IsAccepted = Convert.ToBoolean(row["IsAccepted"]);
                         retval.UserId = Convert.ToInt32(row["UserId"]);
                         retval.Status = row["Status"].ToString();
@@ -202,7 +202,7 @@ namespace DiffReviewer.ServiceLibrary
             }
             return retval;
         }
-        public HunkApprovalResponseDTO SetHunkApprovalStatus(int hunkId, bool isApproved, int userId, string comments)
+        public HunkApprovalResponseDTO SetHunkApprovalStatus(string hunkHash, bool isApproved, int userId, string comments)
         {
             var retval = new HunkApprovalResponseDTO();
             using (var conn = new SqlConnection(sqlConnString))
@@ -211,7 +211,7 @@ namespace DiffReviewer.ServiceLibrary
                 using (var cmd = new SqlCommand("spApproveHunk", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@HunkId", SqlDbType.Int).Value = hunkId;
+                    cmd.Parameters.AddWithValue("@HunkHash", SqlDbType.NVarChar).Value = hunkHash;
                     cmd.Parameters.AddWithValue("@isApproved", SqlDbType.Bit).Value = isApproved;
                     cmd.Parameters.AddWithValue("@UserId", SqlDbType.Int).Value = userId;
                     cmd.Parameters.AddWithValue("@Comments", SqlDbType.NVarChar).Value = comments;
@@ -226,7 +226,7 @@ namespace DiffReviewer.ServiceLibrary
                         var dt = ds.Tables["results"];
                         var row = dt.Rows[0];
 
-                        retval.HunkId = Convert.ToInt32(row["HunkId"]);
+                        retval.HunkHash = row["HunkHash"].ToString();
                         retval.IsApproved = Convert.ToBoolean(row["IsApproved"]);
                         retval.UserId = Convert.ToInt32(row["UserId"]);
                         retval.Status = row["Status"].ToString();
@@ -265,6 +265,44 @@ namespace DiffReviewer.ServiceLibrary
                                 retval.Add(prNumber);
                             }
                         }
+                    }
+                }
+                conn.Close();
+            }
+            return retval;
+        }
+
+        public ReviewStatsDTO GetReviewStats(int pullRequestNumber)
+        {
+            var retval = new ReviewStatsDTO();
+            using (var conn = new SqlConnection(sqlConnString))
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand("spGetReviewStats", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PullRequestNumber", SqlDbType.Int).Value = pullRequestNumber;
+
+                    using (SqlDataAdapter da = new SqlDataAdapter())
+                    {
+                        da.SelectCommand = cmd;
+
+                        var ds = new DataSet();
+                        da.Fill(ds, "results");
+
+                        var dt = ds.Tables["results"];
+                        var row = dt.Rows[0];
+
+                        retval.TotalHunksCheckedOut = Convert.ToInt32(row["TotalHunksCheckedOut"]);
+                        retval.TotalAcceptedReviews = Convert.ToInt32(row["TotalAcceptedReviews"]);
+                        retval.TotalRejectedReviews = Convert.ToInt32(row["TotalRejectedReviews"]);
+                        retval.TotalReviews = Convert.ToInt32(row["TotalReviews"]);
+                        retval.TotalFullyReviewed = Convert.ToInt32(row["TotalFullyReviewed"]);
+                        retval.TotalReviewsApproved = Convert.ToInt32(row["TotalReviewsApproved"]);
+                        retval.TotalReviewsNotApproved = Convert.ToInt32(row["TotalReviewsNotApproved"]);
+                        retval.TotalApprovals = Convert.ToInt32(row["TotalApprovals"]);
+                        retval.TotalFullyApproved = Convert.ToInt32(row["TotalFullyApproved"]);
+                        retval.HunkCount = Convert.ToInt32(row["HunkCount"]);
                     }
                 }
                 conn.Close();
